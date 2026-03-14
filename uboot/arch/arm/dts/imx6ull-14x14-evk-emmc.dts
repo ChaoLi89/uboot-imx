@@ -8,7 +8,11 @@
  */
 
 #include "imx6ull-14x14-evk.dts"
-
+/{
+	chosen {
+		stdout-path = &uart3;
+	};
+};
 &usdhc2 {
 	pinctrl-names = "default", "state_100mhz", "state_200mhz";
 	pinctrl-0 = <&pinctrl_usdhc2_8bit>;
@@ -19,3 +23,29 @@
 	status = "okay";
 };
 
+&iomuxc {
+	pinctrl_uart3: uart3grp {
+		fsl,pins = <
+			MX6UL_PAD_UART3_TX_DATA__UART3_DCE_TX 0x1b0b1
+			MX6UL_PAD_UART3_RX_DATA__UART3_DCE_RX 0x1b0b1
+		>;
+		bootph-all;
+	};
+	pinctrl_gpio0: gpio0pin {
+		fsl,pins = <
+			MX6UL_PAD_GPIO1_IO03__GPIO1_IO03 0x10b0
+		>;
+	};
+};
+&uart3 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart3>;
+	bootph-all;
+	status = "okay";
+};
+
+&gpio1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_gpio0>;
+	status = "okay";
+};

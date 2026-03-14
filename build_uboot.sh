@@ -8,4 +8,4 @@ export CROSS_COMPILE=/home/chao/study/linux_toolchain/arm-gnu-toolchain-15.2.rel
 
 
 
-make $1
+make $@

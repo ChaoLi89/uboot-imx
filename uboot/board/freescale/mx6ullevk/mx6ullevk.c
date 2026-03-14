@@ -274,6 +274,39 @@ static int setup_lcd(void)
 static inline int setup_lcd(void) { return 0; }
 #endif
 
+
+static void turn_on_led(void)
+{
+	struct gpio_desc desc;
+	/* Step 1, get the gpio_desc for this GPIO Pin */
+	int ret = dm_gpio_lookup_name("gpio1_3", &desc);
+	printf("chao: turn on led %s %d\n", __FILE__, __LINE__);
+	if (ret)
+	{
+		printf("chao: can't find gpio\n");
+		return;
+	}
+	/* Step 2, request the Pin, fail if it is already requested by others */
+	dm_gpio_request(&desc, "gpio1_3");
+	if (ret)
+	{
+		printf("chao: can't request gpio\n");
+		return;
+	}
+	/* Step 3, set the direction of the GPIO Pin */
+	ret = dm_gpio_set_dir_flags(&desc, GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
+
+	/* Step 4, output a value, 0 is low, 1 is high */
+	dm_gpio_set_value(&desc, 0);
+
+	mdelay(2000);
+
+	dm_gpio_set_value(&desc, 1);
+
+	/* Step5, free the Pin so others can request*/
+	dm_gpio_free(desc.dev, &desc);
+}
+
 int board_early_init_f(void)
 {
 	return 0;
@@ -283,7 +316,6 @@ int board_init(void)
 {
 	/* Address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
-
 #ifdef	CONFIG_FEC_MXC
 	setup_fec();
 #endif
@@ -295,6 +327,7 @@ int board_init(void)
 #ifdef CONFIG_NAND_MXS
 	setup_gpmi_nand();
 #endif
+	turn_on_led();
 
 	return 0;
 }
@@ -362,4 +395,51 @@ void board_quiesce_devices(void)
 #if defined(CONFIG_VIDEO_MXS)
 	enable_lcdif_clock(LCDIF1_BASE_ADDR, 0);
 #endif
+}
+void reset_phy(void)
+{
+	/* use deprecated gpio functions to manipulate gpio --------------- start*/
+	// gpio_request(135, "lichao");
+	// if (gpio_direction_output(135, 0) < 0) //GPIO5_07, IMX_GPIO_NR(5, 7) == (5-1)*32+7 == 135
+	// 	printf("chao: gpio output error\n");
+
+	// udelay(10000);
+	// gpio_set_value(135, 1);
+	// udelay(100000);
+	/* use deprecated gpio functions to manipulate gpio ---------------- end*/
+
+	struct udevice *eth0;
+   	struct gpio_desc reset_pin;
+	int ret = 0;
+
+	ret = uclass_get_device(UCLASS_MDIO, 0, &eth0);
+
+	if (ret)
+	{
+		printf("chao: can't get udevice\n");
+		return;
+	}
+
+	/* how to get properties from a udevice */
+	u32 assert_us;
+	ret = dev_read_u32(eth0, "reset-assert-us", &assert_us);
+	if (ret)
+		printf("chao: assert us is %d\n", assert_us);
+	
+	printf("chao: my property string is %s\n", dev_read_string(eth0, "my-property"));
+	printf("chao: my property bool is %d\n", dev_read_bool(eth0, "my-property-bool"));
+
+
+	ret = gpio_request_by_name(eth0, "reset-gpios", 0, &reset_pin, GPIOD_IS_OUT);
+
+	if (ret)
+	{
+		printf("chao: can't get reset pin for eth\n");
+		return;
+	}
+
+	dm_gpio_set_value(&reset_pin, 0);
+	udelay(10000);
+	dm_gpio_set_value(&reset_pin, 1);
+	udelay(100000);
 }

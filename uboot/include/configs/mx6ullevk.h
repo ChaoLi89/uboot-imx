@@ -83,6 +83,10 @@
 	"script=boot.scr\0" \
 	"image=zImage\0" \
 	"console=ttymxc0\0" \
+	"ethaddr=00:04:9f:04:d2:35\0" \
+	"ipaddr=192.168.0.2\0" \
+	"ethact=eth0\0" \
+	"netmask=255.255.255.0\0" \
 	"fdt_high=0xffffffff\0" \
 	"initrd_high=0xffffffff\0" \
 	"fdt_file=undefined\0" \
