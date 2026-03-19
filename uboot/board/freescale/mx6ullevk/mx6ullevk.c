@@ -279,6 +279,7 @@ static void turn_on_led(void)
 {
 	struct gpio_desc desc;
 	/* Step 1, get the gpio_desc for this GPIO Pin */
+
 	int ret = dm_gpio_lookup_name("gpio1_3", &desc);
 	printf("chao: turn on led %s %d\n", __FILE__, __LINE__);
 	if (ret)
@@ -327,7 +328,7 @@ int board_init(void)
 #ifdef CONFIG_NAND_MXS
 	setup_gpmi_nand();
 #endif
-	turn_on_led();
+	// turn_on_led();
 
 	return 0;
 }
@@ -399,47 +400,50 @@ void board_quiesce_devices(void)
 void reset_phy(void)
 {
 	/* use deprecated gpio functions to manipulate gpio --------------- start*/
-	// gpio_request(135, "lichao");
-	// if (gpio_direction_output(135, 0) < 0) //GPIO5_07, IMX_GPIO_NR(5, 7) == (5-1)*32+7 == 135
-	// 	printf("chao: gpio output error\n");
+	gpio_request(135, "lichao");
+	if (gpio_direction_output(135, 0) < 0) //GPIO5_07, IMX_GPIO_NR(5, 7) == (5-1)*32+7 == 135
+		printf("chao: gpio output error\n");
 
-	// udelay(10000);
-	// gpio_set_value(135, 1);
-	// udelay(100000);
+	udelay(10000);
+	gpio_set_value(135, 1);
+	udelay(100000);
 	/* use deprecated gpio functions to manipulate gpio ---------------- end*/
 
-	struct udevice *eth0;
-   	struct gpio_desc reset_pin;
-	int ret = 0;
+	// struct udevice *phy;
+   	// struct gpio_desc reset_pin;
+	// int ret = 0;
 
-	ret = uclass_get_device(UCLASS_MDIO, 0, &eth0);
+	// ret = uclass_get_device(UCLASS_ETH_PHY, 0, &phy);
 
-	if (ret)
-	{
-		printf("chao: can't get udevice\n");
-		return;
-	}
+	// if (ret)
+	// {
+	// 	printf("chao: can't get udevice\n");
+	// 	return;
+	// }
 
 	/* how to get properties from a udevice */
-	u32 assert_us;
-	ret = dev_read_u32(eth0, "reset-assert-us", &assert_us);
-	if (ret)
-		printf("chao: assert us is %d\n", assert_us);
+	// u32 assert_us;
+	// u32 deassert_us;
 	
-	printf("chao: my property string is %s\n", dev_read_string(eth0, "my-property"));
-	printf("chao: my property bool is %d\n", dev_read_bool(eth0, "my-property-bool"));
+	// ret = dev_read_u32(phy, "reset-deassert-us", &deassert_us);
+	// ret = dev_read_u32(phy, "reset-assert-us", &assert_us);
+	// if (ret)
+	// 	printf("chao: assert us is %d\n", assert_us);
+	
+	// printf("chao: my property string is %s\n", dev_read_string(phy, "my-property-string"));
+	// printf("chao: my property bool is %d\n", dev_read_bool(phy, "my-property-bool"));
 
 
-	ret = gpio_request_by_name(eth0, "reset-gpios", 0, &reset_pin, GPIOD_IS_OUT);
+	// ret = gpio_request_by_name(phy, "reset-gpios", 0, &reset_pin, GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
 
-	if (ret)
-	{
-		printf("chao: can't get reset pin for eth\n");
-		return;
-	}
+	// if (ret)
+	// {
+	// 	printf("chao: can't get reset pin for eth\n");
+	// 	return;
+	// }
 
-	dm_gpio_set_value(&reset_pin, 0);
-	udelay(10000);
-	dm_gpio_set_value(&reset_pin, 1);
-	udelay(100000);
+	// dm_gpio_set_value(&reset_pin, 1);
+	// udelay(assert_us);
+	// dm_gpio_set_value(&reset_pin, 0);
+	// udelay(deassert_us);
 }

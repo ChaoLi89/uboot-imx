@@ -12,6 +12,11 @@
 	chosen {
 		stdout-path = &uart3;
 	};
+
+	leds: leds {
+		compatible = "gpio-leds";
+		status = "okay";
+	};
 };
 &usdhc2 {
 	pinctrl-names = "default", "state_100mhz", "state_200mhz";
@@ -44,8 +49,15 @@
 	status = "okay";
 };
 
-&gpio1 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&pinctrl_gpio0>;
-	status = "okay";
+&leds {
+	led_control {
+		label = "led_control1";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_gpio0>;
+		gpios = <&gpio1 3 GPIO_ACTIVE_LOW>;
+		default-state = "off";
+		status = "okay";
+	};
+
 };
+
