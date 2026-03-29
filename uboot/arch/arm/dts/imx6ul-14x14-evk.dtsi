@@ -273,7 +273,7 @@
 	#pwm-cells = <2>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_pwm1>;
-	status = "okay";
+	status = "disable";
 };
 
 &pxp {
@@ -406,6 +406,14 @@
 
 &iomuxc {
 	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_hog>;
+	status = "okay";
+
+	pinctrl_hog: hoggrp {
+		fsl,pins = <
+			MX6UL_PAD_GPIO1_IO08__PWM1_OUT   0x110b0
+			>;
+	};
 
 	pinctrl_camera_clock: cameraclockgrp {
 		fsl,pins = <

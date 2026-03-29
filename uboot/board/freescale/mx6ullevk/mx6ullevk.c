@@ -29,6 +29,7 @@
 #include <power/pmic.h>
 #include <power/pfuze3000_pmic.h>
 #include "../common/pfuze.h"
+#include <pwm.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -256,17 +257,22 @@ static int setup_lcd(void)
 {
 	enable_lcdif_clock(LCDIF1_BASE_ADDR, 1);
 
-	imx_iomux_v3_setup_multiple_pads(lcd_pads, ARRAY_SIZE(lcd_pads));
+	// imx_iomux_v3_setup_multiple_pads(lcd_pads, ARRAY_SIZE(lcd_pads));
 
-	/* Reset the LCD */
-	gpio_request(IMX_GPIO_NR(5, 9), "lcd reset");
-	gpio_direction_output(IMX_GPIO_NR(5, 9) , 0);
-	udelay(500);
-	gpio_direction_output(IMX_GPIO_NR(5, 9) , 1);
+	// /* Reset the LCD */
+	// gpio_request(IMX_GPIO_NR(5, 9), "lcd reset");
+	// gpio_direction_output(IMX_GPIO_NR(5, 9) , 0);
+	// udelay(500);
+	// gpio_direction_output(IMX_GPIO_NR(5, 9) , 1);
 
-	/* Set Brightness to high */
-	gpio_request(IMX_GPIO_NR(1, 8), "backlight");
-	gpio_direction_output(IMX_GPIO_NR(1, 8) , 1);
+	// /* Set Brightness to high */
+	// gpio_request(IMX_GPIO_NR(1, 8), "backlight");
+	// gpio_direction_output(IMX_GPIO_NR(1, 8) , 1);
+
+	pwm_init(0, 0, 0);
+	pwm_disable(0);
+	pwm_config(0, 60000, 100000);
+	pwm_enable(0);
 
 	return 0;
 }
@@ -281,7 +287,6 @@ static void turn_on_led(void)
 	/* Step 1, get the gpio_desc for this GPIO Pin */
 
 	int ret = dm_gpio_lookup_name("gpio1_3", &desc);
-	printf("chao: turn on led %s %d\n", __FILE__, __LINE__);
 	if (ret)
 	{
 		printf("chao: can't find gpio\n");
@@ -312,9 +317,22 @@ int board_early_init_f(void)
 {
 	return 0;
 }
+static void ccgr_init(void)
+{
+	struct mxc_ccm_reg *ccm = (struct mxc_ccm_reg *)CCM_BASE_ADDR;
 
+	writel(0xFFFFFFFF, &ccm->CCGR0);
+	writel(0xFFFFFFFF, &ccm->CCGR1);
+	writel(0xFFFFFFFF, &ccm->CCGR2);
+	writel(0xFFFFFFFF, &ccm->CCGR3);
+	writel(0xFFFFFFFF, &ccm->CCGR4);
+	writel(0xFFFFFFFF, &ccm->CCGR5);
+	writel(0xFFFFFFFF, &ccm->CCGR6);
+	// writel(0xFFFFFFFF, &ccm->CCGR7);
+}
 int board_init(void)
 {
+	ccgr_init();
 	/* Address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 #ifdef	CONFIG_FEC_MXC
@@ -329,6 +347,7 @@ int board_init(void)
 	setup_gpmi_nand();
 #endif
 	// turn_on_led();
+
 
 	return 0;
 }

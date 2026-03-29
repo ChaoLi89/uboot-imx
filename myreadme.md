@@ -8,6 +8,11 @@ cd output
 then copy u-boot.bin and uuu it:
 uuu u-boot.bin
 
+// to update defconfig
+make savedconfig
+cp defconfig uboot/configs/mx6ull_14x14_evk_emmc_defconfig
+
+
 ./find_node.sh [node name] [the path to the dts]
 For example:
 ./find_node.sh "clks" arch/arm/dts/imx6ull-14x14-evk-emmc.dts

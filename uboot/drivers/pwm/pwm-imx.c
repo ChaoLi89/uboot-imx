@@ -76,6 +76,7 @@ int pwm_imx_get_parms(int period_ns, int duty_ns, unsigned long *period_c,
 	 * value here as a define. Replace it when we have the clock
 	 * framework.
 	 */
+	#define CFG_IMX6_PWM_PER_CLK 66000000
 	c = CFG_IMX6_PWM_PER_CLK;
 	c = c * period_ns;
 	do_div(c, 1000000000);
@@ -108,6 +109,7 @@ int pwm_init(int pwm_id, int div, int invert)
 		return -1;
 
 	writel(0, &pwm->ir);
+	printf("chao: pwm init\n");
 	return 0;
 }
 
