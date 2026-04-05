@@ -78,7 +78,6 @@
 
 #else
 #define CFG_EXTRA_ENV_SETTINGS \
-	CFG_MFG_ENV_SETTINGS \
 	TEE_ENV \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
@@ -185,6 +184,8 @@
 					"echo WARNING: Could not determine tee to use; " \
 				"fi; " \
 			"fi;\0" \
+		"bootargs=console=ttymxc2,115200\0" \
+		"my_boot=bootz ${kernel_addr_r} ${cpio_addr_r} ${fdt_addr_r}\0" \
 
 #endif
 
