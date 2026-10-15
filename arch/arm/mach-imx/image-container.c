@@ -424,48 +424,22 @@ unsigned int spl_spi_get_uboot_offs(struct spi_flash *flash)
 unsigned long arch_spl_mmc_get_uboot_raw_sector(struct mmc *mmc,
 						unsigned long raw_sect)
 {
-	ulong end;
+	return 0;
+	// ulong end;
 
-	end = get_imageset_end(mmc, MMC_DEV);
-	end = ROUND(end, SZ_1K);
+	// end = get_imageset_end(mmc, MMC_DEV);
+	// end = ROUND(end, SZ_1K);
 
-	printf("Load image from MMC/SD 0x%lx\n", end);
+	// printf("Load image from MMC/SD 0x%lx\n", end);
 
-	return end / mmc->read_bl_len;
+	// return end / mmc->read_bl_len;
 }
 
 int spl_mmc_emmc_boot_partition(struct mmc *mmc)
 {
-	int part;
+	printf("chao: I am hacking the boot partition to boot1\n");
+	return EMMC_HWPART_BOOT2;
 
-#ifdef CONFIG_DUAL_BOOTLOADER
-	/* Bootloader is stored in eMMC user partition for
-	 * dual bootloader.
-	 */
-	part = 0;
-#else
-
-	part = EXT_CSD_EXTRACT_BOOT_PART(mmc->part_config);
-	if (part == EMMC_BOOT_PART_BOOT1 || part == EMMC_BOOT_PART_BOOT2) {
-		bool sec_boot = false;
-#if IS_ENABLED(CONFIG_ARCH_IMX9) && IS_ENABLED(CONFIG_SCMI_FIRMWARE)
-		u8 stage;
-		int ret;
-		ret = scmi_get_boot_stage(&stage);
-		if (!ret)
-			sec_boot = (stage == 0x9);
-#else
-		unsigned long sec_set_off = 0;
-		sec_boot = check_secondary_cnt_set(&sec_set_off);
-#endif
-		if (sec_boot)
-			part = (part == EMMC_BOOT_PART_BOOT1) ? EMMC_HWPART_BOOT2 : EMMC_HWPART_BOOT1;
-	} else if (part == EMMC_BOOT_PART_USER) {
-		part = EMMC_HWPART_DEFAULT;
-	}
-#endif
-
-	return part;
 }
 #endif
 

@@ -28,6 +28,7 @@
 #include <adc.h>
 #include <dm/uclass.h>
 #include <dm/uclass-internal.h>
+#include <spl.h>
 
 extern int board_fix_fdt_fuse(void *fdt);
 static int get_board_version(int *rev, int *data);
@@ -649,7 +650,11 @@ void board_quiesce_devices(void)
 	if (ret)
 		printf("couldn't remove SPI FLASH devices\n");
 }
-
+void board_boot_order(u32 *spl_boot_list)
+{
+	printf("chao: boot order ................\n");
+	spl_boot_list[0] = BOOT_DEVICE_MMC1;
+}
 #if IS_ENABLED(CONFIG_OF_BOARD_FIXUP)
 
 int board_fix_fdt(void *fdt)
